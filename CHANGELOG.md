@@ -74,6 +74,7 @@ be deprecated eventually.
 - [#2038](https://github.com/influxdata/telegraf/issues/2038): Add papertrail support to webhooks
 - [#2253](https://github.com/influxdata/telegraf/pull/2253): Change jolokia plugin to use bulk requests.
 - [#2575](https://github.com/influxdata/telegraf/issues/2575) Add diskio input for Darwin
+- [#2635](https://github.com/influxdata/telegraf/issues/2635): add tcp keep-alive to socket_listener & socket_writer
 
 ### Bugfixes
 
@@ -85,6 +86,7 @@ be deprecated eventually.
 - [#2356](https://github.com/influxdata/telegraf/issues/2356): cpu input panic when /proc/stat is empty.
 - [#2341](https://github.com/influxdata/telegraf/issues/2341): telegraf swallowing panics in --test mode.
 - [#2358](https://github.com/influxdata/telegraf/pull/2358): Create pidfile with 644 permissions & defer file deletion.
+- [#2360](https://github.com/influxdata/telegraf/pull/2360): Fixed install/remove of telegraf on non-systemd Debian/Ubuntu systems
 - [#2282](https://github.com/influxdata/telegraf/issues/2282): Reloading telegraf freezes prometheus output.
 - [#2390](https://github.com/influxdata/telegraf/issues/2390): Empty tag value causes error on InfluxDB output.
 - [#2380](https://github.com/influxdata/telegraf/issues/2380): buffer_size field value is negative number from "internal" plugin.
@@ -108,6 +110,9 @@ be deprecated eventually.
 - [#2649](https://github.com/influxdata/telegraf/pull/2649): Improve performance of diskio with many disks
 - [#2671](https://github.com/influxdata/telegraf/issues/2671): The internal input plugin uses the wrong units for `heap_objects`
 - [#2684](https://github.com/influxdata/telegraf/pull/2684): Fix ipmi_sensor config is shared between all plugin instances
+- [#2450](https://github.com/influxdata/telegraf/issues/2450): Network statistics not collected when system has alias interfaces
+- [#1911](https://github.com/influxdata/telegraf/issues/1911): Sysstat plugin needs LANG=C or similar locale
+- [#2528](https://github.com/influxdata/telegraf/issues/2528): File output closes standard streams on reload.
 
 ## v1.2.1 [2017-02-01]
 
