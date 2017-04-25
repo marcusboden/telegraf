@@ -52,53 +52,59 @@ func (l *Libvirt) Gather(acc telegraf.Accumulator) error {
     acc.AddFields("memory", map[string]interface{}{"value": domainInfo.Memory}, tags)
     acc.AddFields("nr_virt_cpu", map[string]interface{}{"value": domainInfo.NrVirtCpu}, tags)
 
-    domStat, err := connection.GetAllDomainStats(
-      []*lv.Domain{&domain},
-      lv.DOMAIN_STATS_INTERFACE,
-      lv.CONNECT_GET_ALL_DOMAINS_STATS_ACTIVE,
-    )
-    if err != nil {
-      return err
-    }
-    for _, iface := range domStat[0].Net {
-      tags["Name"] = iface.Name
-      acc.AddFields("interface.RxBytes", map[string]interface{}{"value": iface.RxBytes}, tags)
-      acc.AddFields("interface.RxPkts", map[string]interface{}{"value": iface.RxPkts}, tags)
-      acc.AddFields("interface.RxErrs", map[string]interface{}{"value": iface.RxErrs}, tags)
-      acc.AddFields("interface.RxDrop", map[string]interface{}{"value": iface.RxDrop}, tags)
-      acc.AddFields("interface.TxBytes", map[string]interface{}{"value": iface.TxBytes}, tags)
-      acc.AddFields("interface.TxPkts", map[string]interface{}{"value": iface.TxPkts}, tags)
-      acc.AddFields("interface.TxErrs", map[string]interface{}{"value": iface.TxErrs}, tags)
-      acc.AddFields("interface.TxDrop", map[string]interface{}{"value": iface.TxDrop}, tags)
-      delete(tags, "Name")
-    }
+    GatherInterfaces(*connection, domain, acc, tags)
 
-    domStats, err := connection.GetAllDomainStats(
-      []*lv.Domain{&domain},
-      lv.DOMAIN_STATS_BLOCK,
-      lv.CONNECT_GET_ALL_DOMAINS_STATS_ACTIVE,
-    )
-    if err != nil {
-      return err
-    }
-    for _, disk := range domStats[0].Block {
-      tags["Name"] = disk.Name
-      acc.AddFields("disk.RdReqs", map[string]interface{}{"value": disk.RdReqs}, tags)
-      acc.AddFields("disk.RdBytes", map[string]interface{}{"value": disk.RdBytes}, tags)
-      acc.AddFields("disk.WrReqs", map[string]interface{}{"value": disk.WrReqs}, tags)
-      acc.AddFields("disk.WrBytes", map[string]interface{}{"value": disk.WrBytes}, tags)
-      acc.AddFields("disk.Errors", map[string]interface{}{"value": disk.Errors}, tags)
-      delete(tags, "Name")
-    }
+    GatherDisks(*connection, domain, acc, tags)
 	}
 
 	return nil
 }
 
-func GatherInterfaces(d lv.Domain, acc telegraf.Accumulator , tags map[string]string) error {
+func GatherInterfaces(c lv.Connect, d lv.Domain, acc telegraf.Accumulator , tags map[string]string) error {
+  domStat, err := c.GetAllDomainStats(
+    []*lv.Domain{&d},
+    lv.DOMAIN_STATS_INTERFACE,
+    lv.CONNECT_GET_ALL_DOMAINS_STATS_ACTIVE,
+  )
+  if err != nil {
+    return err
+  }
+  for _, iface := range domStat[0].Net {
+    tags["Name"] = iface.Name
+    acc.AddFields("interface.RxBytes", map[string]interface{}{"value": iface.RxBytes}, tags)
+    acc.AddFields("interface.RxPkts", map[string]interface{}{"value": iface.RxPkts}, tags)
+    acc.AddFields("interface.RxErrs", map[string]interface{}{"value": iface.RxErrs}, tags)
+    acc.AddFields("interface.RxDrop", map[string]interface{}{"value": iface.RxDrop}, tags)
+    acc.AddFields("interface.TxBytes", map[string]interface{}{"value": iface.TxBytes}, tags)
+    acc.AddFields("interface.TxPkts", map[string]interface{}{"value": iface.TxPkts}, tags)
+    acc.AddFields("interface.TxErrs", map[string]interface{}{"value": iface.TxErrs}, tags)
+    acc.AddFields("interface.TxDrop", map[string]interface{}{"value": iface.TxDrop}, tags)
+    delete(tags, "Name")
+  }
   return nil
-  
 }
+
+func GatherDisks(c lv.Connect, d lv.Domain, acc telegraf.Accumulator , tags map[string]string) error {
+  domStats, err := c.GetAllDomainStats(
+    []*lv.Domain{&d},
+    lv.DOMAIN_STATS_BLOCK,
+    lv.CONNECT_GET_ALL_DOMAINS_STATS_ACTIVE,
+  )
+  if err != nil {
+    return err
+  }
+  for _, disk := range domStats[0].Block {
+    tags["Name"] = disk.Name
+    acc.AddFields("disk.RdReqs", map[string]interface{}{"value": disk.RdReqs}, tags)
+    acc.AddFields("disk.RdBytes", map[string]interface{}{"value": disk.RdBytes}, tags)
+    acc.AddFields("disk.WrReqs", map[string]interface{}{"value": disk.WrReqs}, tags)
+    acc.AddFields("disk.WrBytes", map[string]interface{}{"value": disk.WrBytes}, tags)
+    acc.AddFields("disk.Errors", map[string]interface{}{"value": disk.Errors}, tags)
+    delete(tags, "Name")
+  }
+  return nil
+}
+
 
 func init() {
 	inputs.Add("libvirt", func() telegraf.Input {
