@@ -1,3 +1,15 @@
+# How to use this fork
+
+To use this fork, first clone the original and set this repository as a new remote. Otherwise the names in the go path are messed up.
+
+```
+go get github.com/influxdata/telegraf
+cd $GOPATH/src/github.com/influxdata/telegraf
+git remote add libvirt-fork https://github.com/marcusboden/telegraf.git
+git pull libvirt-fork
+make
+```
+
 # Telegraf [![Circle CI](https://circleci.com/gh/influxdata/telegraf.svg?style=svg)](https://circleci.com/gh/influxdata/telegraf) [![Docker pulls](https://img.shields.io/docker/pulls/library/telegraf.svg)](https://hub.docker.com/_/telegraf/)
 
 Telegraf is an agent written in Go for collecting, processing, aggregating,
