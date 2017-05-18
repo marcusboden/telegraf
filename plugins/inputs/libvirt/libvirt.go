@@ -46,11 +46,11 @@ func (l *Libvirt) Gather(acc telegraf.Accumulator) error {
       return err
     }
 
-		tags := map[string]string{"domain": domainName}
-    acc.AddFields("cpu_time", map[string]interface{}{"value": domainInfo.CpuTime} , tags)
-    acc.AddFields("max_mem", map[string]interface{}{"value": domainInfo.MaxMem}, tags)
-    acc.AddFields("memory", map[string]interface{}{"value": domainInfo.Memory}, tags)
-    acc.AddFields("nr_virt_cpu", map[string]interface{}{"value": domainInfo.NrVirtCpu}, tags)
+    tags := map[string]string{"domain": domainName, "cloud": "new"}
+    acc.AddFields("vm.cpu_time", map[string]interface{}{"value": domainInfo.CpuTime} , tags)
+    acc.AddFields("vm.max_mem", map[string]interface{}{"value": domainInfo.MaxMem}, tags)
+    acc.AddFields("vm.memory", map[string]interface{}{"value": domainInfo.Memory}, tags)
+    acc.AddFields("vm.nr_virt_cpu", map[string]interface{}{"value": domainInfo.NrVirtCpu}, tags)
 
     GatherInterfaces(*connection, domain, acc, tags)
 
@@ -70,16 +70,16 @@ func GatherInterfaces(c lv.Connect, d lv.Domain, acc telegraf.Accumulator , tags
     return err
   }
   for _, iface := range domStat[0].Net {
-    tags["Name"] = iface.Name
-    acc.AddFields("interface.RxBytes", map[string]interface{}{"value": iface.RxBytes}, tags)
-    acc.AddFields("interface.RxPkts", map[string]interface{}{"value": iface.RxPkts}, tags)
-    acc.AddFields("interface.RxErrs", map[string]interface{}{"value": iface.RxErrs}, tags)
-    acc.AddFields("interface.RxDrop", map[string]interface{}{"value": iface.RxDrop}, tags)
-    acc.AddFields("interface.TxBytes", map[string]interface{}{"value": iface.TxBytes}, tags)
-    acc.AddFields("interface.TxPkts", map[string]interface{}{"value": iface.TxPkts}, tags)
-    acc.AddFields("interface.TxErrs", map[string]interface{}{"value": iface.TxErrs}, tags)
-    acc.AddFields("interface.TxDrop", map[string]interface{}{"value": iface.TxDrop}, tags)
-    delete(tags, "Name")
+    tags["name"] = iface.Name
+    acc.AddFields("vm.interface.rx_bytes", map[string]interface{}{"value": iface.RxBytes}, tags)
+    acc.AddFields("vm.interface.rx_packets", map[string]interface{}{"value": iface.RxPkts}, tags)
+    acc.AddFields("vm.interface.rx_errs", map[string]interface{}{"value": iface.RxErrs}, tags)
+    acc.AddFields("vm.interface.rx_drop", map[string]interface{}{"value": iface.RxDrop}, tags)
+    acc.AddFields("vm.interface.tx_bytes", map[string]interface{}{"value": iface.TxBytes}, tags)
+    acc.AddFields("vm.interface.tx_packets", map[string]interface{}{"value": iface.TxPkts}, tags)
+    acc.AddFields("vm.interface.tx_errs", map[string]interface{}{"value": iface.TxErrs}, tags)
+    acc.AddFields("vm.interface.tx_drop", map[string]interface{}{"value": iface.TxDrop}, tags)
+    delete(tags, "name")
   }
   return nil
 }
@@ -94,13 +94,13 @@ func GatherDisks(c lv.Connect, d lv.Domain, acc telegraf.Accumulator , tags map[
     return err
   }
   for _, disk := range domStats[0].Block {
-    tags["Name"] = disk.Name
-    acc.AddFields("disk.RdReqs", map[string]interface{}{"value": disk.RdReqs}, tags)
-    acc.AddFields("disk.RdBytes", map[string]interface{}{"value": disk.RdBytes}, tags)
-    acc.AddFields("disk.WrReqs", map[string]interface{}{"value": disk.WrReqs}, tags)
-    acc.AddFields("disk.WrBytes", map[string]interface{}{"value": disk.WrBytes}, tags)
-    acc.AddFields("disk.Errors", map[string]interface{}{"value": disk.Errors}, tags)
-    delete(tags, "Name")
+    tags["name"] = disk.Name
+    acc.AddFields("vm.disk.rd_req", map[string]interface{}{"value": disk.RdReqs}, tags)
+    acc.AddFields("vm.disk.rd_bytes", map[string]interface{}{"value": disk.RdBytes}, tags)
+    acc.AddFields("vm.disk.wr_req", map[string]interface{}{"value": disk.WrReqs}, tags)
+    acc.AddFields("vm.disk.wr_bytes", map[string]interface{}{"value": disk.WrBytes}, tags)
+    acc.AddFields("vm.disk.errs", map[string]interface{}{"value": disk.Errors}, tags)
+    delete(tags, "name")
   }
   return nil
 }
