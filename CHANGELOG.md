@@ -1,4 +1,28 @@
-## v1.3 [unreleased]
+## v1.4 [unreleased]
+
+### Release Notes
+### Features
+
+- [#2773](https://github.com/influxdata/telegraf/pull/2773): Add support for self-signed certs to InfluxDB input plugin
+- [#2581](https://github.com/influxdata/telegraf/pull/2581): Add Docker container environment variables as tags. Only whitelisted
+
+### Bugfixes
+
+- [#2819](https://github.com/influxdata/telegraf/pull/2819): [enh] set db_version at 0 if query version fails
+- [#2749](https://github.com/influxdata/telegraf/pull/2749): Fixed sqlserver input to work with case sensitive server collation.
+- [#2716](https://github.com/influxdata/telegraf/pull/2716): Systemd does not see all shutdowns as failures
+- [#2782](https://github.com/influxdata/telegraf/pull/2782): Reuse transports in input plugins
+- [#2815](https://github.com/influxdata/telegraf/issues/2815): Inputs processes fails with "no such process".
+
+## v1.3.1 [unreleased]
+
+### Bugfixes
+
+- [#2749](https://github.com/influxdata/telegraf/pull/2749): Fixed sqlserver input to work with case sensitive server collation.
+- [#2782](https://github.com/influxdata/telegraf/pull/2782): Reuse transports in input plugins
+- [#2815](https://github.com/influxdata/telegraf/issues/2815): Inputs processes fails with "no such process".
+
+## v1.3 [2017-05-15]
 
 ### Release Notes
 
@@ -41,6 +65,8 @@ be deprecated eventually.
 
 ### Features
 
+- [#2721](https://github.com/influxdata/telegraf/pull/2721): Added SASL options for kafka output plugin.
+- [#2723](https://github.com/influxdata/telegraf/pull/2723): Added SSL configuration for input haproxy.
 - [#2494](https://github.com/influxdata/telegraf/pull/2494): Add interrupts input plugin.
 - [#2094](https://github.com/influxdata/telegraf/pull/2094): Add generic socket listener & writer.
 - [#2204](https://github.com/influxdata/telegraf/pull/2204): Extend http_response to support searching for a substring in response. Return 1 if found, else 0.
@@ -74,7 +100,12 @@ be deprecated eventually.
 - [#2038](https://github.com/influxdata/telegraf/issues/2038): Add papertrail support to webhooks
 - [#2253](https://github.com/influxdata/telegraf/pull/2253): Change jolokia plugin to use bulk requests.
 - [#2575](https://github.com/influxdata/telegraf/issues/2575) Add diskio input for Darwin
+- [#2705](https://github.com/influxdata/telegraf/pull/2705): Kinesis output: add use_random_partitionkey option
 - [#2635](https://github.com/influxdata/telegraf/issues/2635): add tcp keep-alive to socket_listener & socket_writer
+- [#2031](https://github.com/influxdata/telegraf/pull/2031): Add Kapacitor input plugin
+- [#2732](https://github.com/influxdata/telegraf/pull/2732): Use go 1.8.1
+- [#2712](https://github.com/influxdata/telegraf/issues/2712): Documentation for rabbitmq input plugin
+- [#2141](https://github.com/influxdata/telegraf/pull/2141): Logparser handles newly-created files.
 
 ### Bugfixes
 
@@ -113,6 +144,8 @@ be deprecated eventually.
 - [#2450](https://github.com/influxdata/telegraf/issues/2450): Network statistics not collected when system has alias interfaces
 - [#1911](https://github.com/influxdata/telegraf/issues/1911): Sysstat plugin needs LANG=C or similar locale
 - [#2528](https://github.com/influxdata/telegraf/issues/2528): File output closes standard streams on reload.
+- [#2603](https://github.com/influxdata/telegraf/issues/2603): AMQP output disconnect blocks all outputs
+- [#2706](https://github.com/influxdata/telegraf/issues/2706): Improve documentation for redis input plugin
 
 ## v1.2.1 [2017-02-01]
 
