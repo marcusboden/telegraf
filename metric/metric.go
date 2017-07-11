@@ -98,31 +98,13 @@ func indexUnescapedByte(buf []byte, b byte) int {
 			break
 		}
 		keyi += i
-		if countBackslashes(buf, keyi-1)%2 == 0 {
+		if buf[keyi-1] != '\\' {
 			break
 		} else {
 			keyi++
 		}
 	}
 	return keyi
-}
-
-// countBackslashes counts the number of preceding backslashes starting at
-// the 'start' index.
-func countBackslashes(buf []byte, index int) int {
-	var count int
-	for {
-		if index < 0 {
-			return count
-		}
-		if buf[index] == '\\' {
-			count++
-			index--
-		} else {
-			break
-		}
-	}
-	return count
 }
 
 type metric struct {
@@ -218,7 +200,7 @@ func (m *metric) SerializeTo(dst []byte) int {
 }
 
 func (m *metric) Split(maxSize int) []telegraf.Metric {
-	if m.Len() < maxSize {
+	if m.Len() <= maxSize {
 		return []telegraf.Metric{m}
 	}
 	var out []telegraf.Metric
@@ -248,7 +230,7 @@ func (m *metric) Split(maxSize int) []telegraf.Metric {
 
 		// if true, then we need to create a metric _not_ including the currently
 		// selected field
-		if len(m.fields[i:j])+len(fields)+constant > maxSize {
+		if len(m.fields[i:j])+len(fields)+constant >= maxSize {
 			// if false, then we'll create a metric including the currently
 			// selected field anyways. This means that the given maxSize is too
 			// small for a single field to fit.
