@@ -36,6 +36,7 @@ func (l *Libvirt) Gather(acc telegraf.Accumulator) error {
 	}
 
 	for _, domain := range domains {
+    defer domain.Free()
     domainName, err := domain.GetName()
     if err != nil {
       return err
@@ -55,7 +56,6 @@ func (l *Libvirt) Gather(acc telegraf.Accumulator) error {
     GatherInterfaces(*connection, domain, acc, tags)
 
     GatherDisks(*connection, domain, acc, tags)
-    domain.Free()
 	}
 
 	return nil
@@ -70,6 +70,7 @@ func GatherInterfaces(c lv.Connect, d lv.Domain, acc telegraf.Accumulator , tags
   if err != nil {
     return err
   }
+  defer domStat[0].Domain.Free()
   for _, iface := range domStat[0].Net {
     tags["name"] = iface.Name
     acc.AddFields("vm.interface.rx_bytes", map[string]interface{}{"value": float64(iface.RxBytes)}, tags)
@@ -94,6 +95,7 @@ func GatherDisks(c lv.Connect, d lv.Domain, acc telegraf.Accumulator , tags map[
   if err != nil {
     return err
   }
+  defer domStats[0].Domain.Free()
   for _, disk := range domStats[0].Block {
     tags["name"] = disk.Name
     acc.AddFields("vm.disk.rd_req", map[string]interface{}{"value": float64(disk.RdReqs)}, tags)
