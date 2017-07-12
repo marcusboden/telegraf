@@ -55,6 +55,7 @@ func (l *Libvirt) Gather(acc telegraf.Accumulator) error {
     GatherInterfaces(*connection, domain, acc, tags)
 
     GatherDisks(*connection, domain, acc, tags)
+    domain.Free()
 	}
 
 	return nil
