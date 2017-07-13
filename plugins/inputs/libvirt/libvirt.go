@@ -1,42 +1,41 @@
 package libvirt
 
 import (
-	lv "github.com/libvirt/libvirt-go"
-	"github.com/influxdata/telegraf"
-	"github.com/influxdata/telegraf/plugins/inputs"
+  lv "github.com/libvirt/libvirt-go"
+  "github.com/influxdata/telegraf"
+  "github.com/influxdata/telegraf/plugins/inputs"
 )
 
 const sampleConfig = `
-  # specify a libvirt connection uri
-  uri = "qemu:///system"
+# specify a libvirt connection uri
+uri = "qemu:///system"
 `
 
 type Libvirt struct {
-	Uri string
+  Uri string
 }
 
 func (l *Libvirt) SampleConfig() string {
-	return sampleConfig
+  return sampleConfig
 }
 
 func (l *Libvirt) Description() string {
-	return "Read domain infos from a libvirt deamon"
+  return "Read domain infos from a libvirt deamon"
 }
 
 func (l *Libvirt) Gather(acc telegraf.Accumulator) error {
-	connection, err := lv.NewConnectReadOnly(l.Uri)
-	if err != nil {
-		return err
-	}
-	defer connection.Close()
+  connection, err := lv.NewConnectReadOnly(l.Uri)
+  if err != nil {
+    return err
+  }
+  defer connection.Close()
 
-	domains, err := connection.ListAllDomains(lv.CONNECT_LIST_DOMAINS_ACTIVE)
-	if err != nil {
-		return err
-	}
+  domains, err := connection.ListAllDomains(lv.CONNECT_LIST_DOMAINS_ACTIVE)
+  if err != nil {
+    return err
+  }
 
-	for _, domain := range domains {
-    defer domain.Free()
+  for _, domain := range domains {
     domainName, err := domain.GetName()
     if err != nil {
       return err
@@ -56,9 +55,10 @@ func (l *Libvirt) Gather(acc telegraf.Accumulator) error {
     GatherInterfaces(*connection, domain, acc, tags)
 
     GatherDisks(*connection, domain, acc, tags)
-	}
+    domain.Free()
+  }
 
-	return nil
+  return nil
 }
 
 func GatherInterfaces(c lv.Connect, d lv.Domain, acc telegraf.Accumulator , tags map[string]string) error {
@@ -110,7 +110,7 @@ func GatherDisks(c lv.Connect, d lv.Domain, acc telegraf.Accumulator , tags map[
 
 
 func init() {
-	inputs.Add("libvirt", func() telegraf.Input {
-		return &Libvirt{}
-	})
+  inputs.Add("libvirt", func() telegraf.Input {
+    return &Libvirt{}
+  })
 }
