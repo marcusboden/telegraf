@@ -36,17 +36,16 @@ func (l *Libvirt) Gather(acc telegraf.Accumulator) error {
   }
 
   for _, domain := range domains {
-    domainName, err := domain.GetName()
-    if err != nil {
-      return err
-    }
-
     domainInfo, err := domain.GetInfo()
     if err != nil {
       return err
     }
 
-    tags := map[string]string{"domain": domainName, "cloud": "new"}
+    uid, err := domain.GetUUIDString()
+    if err != nil {
+      return err
+    }
+    tags := map[string]string{"vm": uid, "cloud": "new"}
     acc.AddFields("vm.cpu_time", map[string]interface{}{"value": float64(domainInfo.CpuTime)} , tags)
     acc.AddFields("vm.max_mem", map[string]interface{}{"value": float64(domainInfo.MaxMem)}, tags)
     acc.AddFields("vm.memory", map[string]interface{}{"value": float64(domainInfo.Memory)}, tags)
