@@ -51,7 +51,7 @@ var fAggregatorFilters = flag.String("aggregator-filter", "",
 var fProcessorFilters = flag.String("processor-filter", "",
 	"filter the processors to enable, separator is :")
 var fUsage = flag.String("usage", "",
-	"print usage for a plugin, ie, 'telegraf -usage mysql'")
+	"print usage for a plugin, ie, 'telegraf --usage mysql'")
 var fService = flag.String("service", "",
 	"operate on the service")
 
@@ -59,7 +59,7 @@ var fService = flag.String("service", "",
 //   ie, -ldflags "-X main.version=`git describe --always --tags`"
 
 var (
-	nextVersion = "1.4.0"
+	nextVersion = "1.5.0"
 	version     string
 	commit      string
 	branch      string
@@ -83,8 +83,8 @@ Usage:
 
 The commands & flags are:
 
-  config             print out full sample configuration to stdout
-  version            print the version to stdout
+  config              print out full sample configuration to stdout
+  version             print the version to stdout
 
   --config <file>     configuration file to load
   --test              gather metrics once, print them to stdout, and exit
@@ -105,7 +105,7 @@ Examples:
   telegraf --input-filter cpu --output-filter influxdb config
 
   # run a single telegraf collection, outputing metrics to stdout
-  telegraf --config telegraf.conf -test
+  telegraf --config telegraf.conf --test
 
   # run telegraf with all plugins defined in config file
   telegraf --config telegraf.conf
@@ -151,6 +151,16 @@ func reloadLoop(
 		}
 		if len(c.Inputs) == 0 {
 			log.Fatalf("E! Error: no inputs found, did you provide a valid config file?")
+		}
+
+		if int64(c.Agent.Interval.Duration) <= 0 {
+			log.Fatalf("E! Agent interval must be positive, found %s",
+				c.Agent.Interval.Duration)
+		}
+
+		if int64(c.Agent.FlushInterval.Duration) <= 0 {
+			log.Fatalf("E! Agent flush_interval must be positive; found %s",
+				c.Agent.Interval.Duration)
 		}
 
 		ag, err := agent.NewAgent(c)
@@ -258,7 +268,7 @@ func (p *program) Stop(s service.Service) error {
 
 func displayVersion() string {
 	if version == "" {
-		return fmt.Sprintf("v%s~pre%s", nextVersion, commit)
+		return fmt.Sprintf("v%s~%s", nextVersion, commit)
 	}
 	return "v" + version
 }

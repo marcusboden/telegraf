@@ -107,21 +107,69 @@ func TestWrite_SkipNonNumberField(t *testing.T) {
 	require.False(t, ok)
 }
 
-func TestWrite_Counter(t *testing.T) {
-	client := NewClient()
+func TestWrite_Counters(t *testing.T) {
+	type args struct {
+		measurement string
+		tags        map[string]string
+		fields      map[string]interface{}
+		valueType   telegraf.ValueType
+	}
+	var tests = []struct {
+		name       string
+		args       args
+		err        error
+		metricName string
+		promType   prometheus.ValueType
+	}{
+		{
+			name: "field named value is not added to metric name",
+			args: args{
+				measurement: "foo",
+				fields:      map[string]interface{}{"value": 42},
+				valueType:   telegraf.Counter,
+			},
+			metricName: "foo",
+			promType:   prometheus.CounterValue,
+		},
+		{
+			name: "field named counter is not added to metric name",
+			args: args{
+				measurement: "foo",
+				fields:      map[string]interface{}{"counter": 42},
+				valueType:   telegraf.Counter,
+			},
+			metricName: "foo",
+			promType:   prometheus.CounterValue,
+		},
+		{
+			name: "field with any other name is added to metric name",
+			args: args{
+				measurement: "foo",
+				fields:      map[string]interface{}{"other": 42},
+				valueType:   telegraf.Counter,
+			},
+			metricName: "foo_other",
+			promType:   prometheus.CounterValue,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			m, err := metric.New(
+				tt.args.measurement,
+				tt.args.tags,
+				tt.args.fields,
+				time.Now(),
+				tt.args.valueType,
+			)
+			client := NewClient()
+			err = client.Write([]telegraf.Metric{m})
+			require.Equal(t, tt.err, err)
 
-	p1, err := metric.New(
-		"foo",
-		make(map[string]string),
-		map[string]interface{}{"value": 42},
-		time.Now(),
-		telegraf.Counter)
-	err = client.Write([]telegraf.Metric{p1})
-	require.NoError(t, err)
-
-	fam, ok := client.fam["foo"]
-	require.True(t, ok)
-	require.Equal(t, prometheus.CounterValue, fam.ValueType)
+			fam, ok := client.fam[tt.metricName]
+			require.True(t, ok)
+			require.Equal(t, tt.promType, fam.ValueType)
+		})
+	}
 }
 
 func TestWrite_Sanitize(t *testing.T) {
@@ -189,6 +237,56 @@ func TestWrite_MixedValueType(t *testing.T) {
 	require.Equal(t, 1, len(fam.Samples))
 }
 
+func TestWrite_MixedValueTypeUpgrade(t *testing.T) {
+	now := time.Now()
+	p1, err := metric.New(
+		"foo",
+		map[string]string{"a": "x"},
+		map[string]interface{}{"value": 1.0},
+		now,
+		telegraf.Untyped)
+	p2, err := metric.New(
+		"foo",
+		map[string]string{"a": "y"},
+		map[string]interface{}{"value": 2.0},
+		now,
+		telegraf.Gauge)
+	var metrics = []telegraf.Metric{p1, p2}
+
+	client := NewClient()
+	err = client.Write(metrics)
+	require.NoError(t, err)
+
+	fam, ok := client.fam["foo"]
+	require.True(t, ok)
+	require.Equal(t, 2, len(fam.Samples))
+}
+
+func TestWrite_MixedValueTypeDowngrade(t *testing.T) {
+	now := time.Now()
+	p1, err := metric.New(
+		"foo",
+		map[string]string{"a": "x"},
+		map[string]interface{}{"value": 1.0},
+		now,
+		telegraf.Gauge)
+	p2, err := metric.New(
+		"foo",
+		map[string]string{"a": "y"},
+		map[string]interface{}{"value": 2.0},
+		now,
+		telegraf.Untyped)
+	var metrics = []telegraf.Metric{p1, p2}
+
+	client := NewClient()
+	err = client.Write(metrics)
+	require.NoError(t, err)
+
+	fam, ok := client.fam["foo"]
+	require.True(t, ok)
+	require.Equal(t, 2, len(fam.Samples))
+}
+
 func TestWrite_Tags(t *testing.T) {
 	now := time.Now()
 	p1, err := metric.New(
@@ -224,6 +322,34 @@ func TestWrite_Tags(t *testing.T) {
 
 	require.Equal(t, 2.0, sample2.Value)
 	require.True(t, now.Before(sample2.Expiration))
+}
+
+func TestWrite_StringFields(t *testing.T) {
+	now := time.Now()
+	p1, err := metric.New(
+		"foo",
+		make(map[string]string),
+		map[string]interface{}{"value": 1.0, "status": "good"},
+		now,
+		telegraf.Counter)
+	p2, err := metric.New(
+		"bar",
+		make(map[string]string),
+		map[string]interface{}{"status": "needs numeric field"},
+		now,
+		telegraf.Gauge)
+	var metrics = []telegraf.Metric{p1, p2}
+
+	client := NewClient()
+	err = client.Write(metrics)
+	require.NoError(t, err)
+
+	fam, ok := client.fam["foo"]
+	require.True(t, ok)
+	require.Equal(t, 1, fam.LabelSet["status"])
+
+	fam, ok = client.fam["bar"]
+	require.False(t, ok)
 }
 
 func TestExpire(t *testing.T) {
@@ -395,6 +521,7 @@ func setupPrometheus() (*PrometheusClient, *prometheus_input.Prometheus, error) 
 	if pTesting == nil {
 		pTesting = NewClient()
 		pTesting.Listen = "localhost:9127"
+		pTesting.Path = "/metrics"
 		err := pTesting.Start()
 		if err != nil {
 			return nil, nil, err
