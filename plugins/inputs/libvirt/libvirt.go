@@ -35,6 +35,8 @@ func (l *Libvirt) Gather(acc telegraf.Accumulator) error {
     return err
   }
 
+  acc.AddFields("vm.data", map[string]interface{}{"count": len(domains)},make(map[string]string))
+
   for _, domain := range domains {
     domainInfo, err := domain.GetInfo()
     if err != nil {
