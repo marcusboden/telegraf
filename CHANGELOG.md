@@ -1,10 +1,31 @@
-## v1.5 [unreleased]
+## v1.5.1 [2017-01-10]
+
+### Bugfixes
+
+- [#3624](https://github.com/influxdata/telegraf/pull/3624): Fix name error in jolokia2_agent sample config.
+- [#3625](https://github.com/influxdata/telegraf/pull/3625): Fix DC/OS login expiration time.
+- [#3593](https://github.com/influxdata/telegraf/pull/3593): Set Content-Type charset in influxdb output and allow it be overridden.
+- [#3594](https://github.com/influxdata/telegraf/pull/3594): Document permissions setup for postfix input.
+- [#3633](https://github.com/influxdata/telegraf/pull/3633): Fix deliver_get field in rabbitmq input.
+- [#3607](https://github.com/influxdata/telegraf/issues/3607): Escape environment variables during config toml parsing.
+
+## v1.5 [2017-12-14]
 
 ### New Plugins
 - [basicstats](./plugins/aggregators/basicstats/README.md) - Thanks to @toni-moreno
+- [bond](./plugins/inputs/bond/README.md) - Thanks to @ildarsv
+- [cratedb](./plugins/outputs/wavefront/README.md) - Thanks to @felixge
+- [dcos](./plugins/inputs/dcos/README.md) - Thanks to @influxdata
 - [jolokia2](./plugins/inputs/jolokia2/README.md) - Thanks to @dylanmei
 - [nginx_plus](./plugins/inputs/nginx_plus/README.md) - Thanks to @mplonka & @poblahblahblah
+- [opensmtpd](./plugins/inputs/opensmtpd/README.md) - Thanks to @aromeyer
+- [particle](./plugins/inputs/webhooks/particle/README.md) - Thanks to @davidgs
+- [pf](./plugins/inputs/pf/README.md) - Thanks to @nferch
+- [postfix](./plugins/inputs/postfix/README.md) - Thanks to @phemmer
 - [smart](./plugins/inputs/smart/README.md) - Thanks to @rickard-von-essen
+- [solr](./plugins/inputs/solr/README.md) - Thanks to @ljagiello
+- [teamspeak](./plugins/inputs/teamspeak/README.md) - Thanks to @p4ddy1
+- [unbound](./plugins/inputs/unbound/README.md) - Thanks to @aromeyer
 - [wavefront](./plugins/outputs/wavefront/README.md) - Thanks to @puckpuck
 
 ### Release Notes
@@ -46,6 +67,29 @@
 - [#3350](https://github.com/influxdata/telegraf/pull/3350): Use labels in prometheus output for string fields.
 - [#3358](https://github.com/influxdata/telegraf/pull/3358): Add support for decimal timestamps to ts-epoch modifier.
 - [#3337](https://github.com/influxdata/telegraf/pull/3337): Add histogram and summary types and use in prometheus plugins.
+- [#3365](https://github.com/influxdata/telegraf/pull/3365): Gather concurrently from snmp agents.
+- [#3333](https://github.com/influxdata/telegraf/issues/3333): Perform DNS lookup before ping and report result.
+- [#3398](https://github.com/influxdata/telegraf/issues/3398): Add instance name option to varnish plugin.
+- [#3406](https://github.com/influxdata/telegraf/pull/3406):  Add support for SSL settings to ElasticSearch output plugin.
+- [#3315](https://github.com/influxdata/telegraf/pull/3315): Add Teamspeak 3 input plugin.
+- [#3305](https://github.com/influxdata/telegraf/pull/3305): Add modification_time field to filestat input plugin.
+- [#2019](https://github.com/influxdata/telegraf/pull/2019): Add Solr input plugin.
+- [#3210](https://github.com/influxdata/telegraf/pull/3210): Add CrateDB output plugin.
+- [#3459](https://github.com/influxdata/telegraf/pull/3459): Add systemd unit pid and cgroup matching to procstat.
+- [#3477](https://github.com/influxdata/telegraf/pull/3477): Add Particle Webhook Plugin.
+- [#3471](https://github.com/influxdata/telegraf/pull/3471): Use MAX() instead of SUM() for latency measurements in sqlserver.
+- [#3490](https://github.com/influxdata/telegraf/pull/3490): Add index by week number to Elasticsearch output.
+- [#3434](https://github.com/influxdata/telegraf/pull/3434): Add unbound input plugin.
+- [#3449](https://github.com/influxdata/telegraf/pull/3449): Add opensmtpd input plugin.
+- [#3470](https://github.com/influxdata/telegraf/pull/3470): Add support for tags in the index name in elasticsearch output.
+- [#2553](https://github.com/influxdata/telegraf/pull/2553): Add postfix input plugin.
+- [#3424](https://github.com/influxdata/telegraf/pull/3424): Add bond input plugin.
+- [#3518](https://github.com/influxdata/telegraf/pull/3518): Add slab to mem plugin.
+- [#3519](https://github.com/influxdata/telegraf/pull/3519): Add input plugin for DC/OS.
+- [#3140](https://github.com/influxdata/telegraf/pull/3140): Add support for glob patterns in net input plugin.
+- [#3405](https://github.com/influxdata/telegraf/pull/3405): Add input plugin for OpenBSD/FreeBSD pf.
+- [#3528](https://github.com/influxdata/telegraf/pull/3528): Add option to amqp output to publish persistent messages.
+- [#3530](https://github.com/influxdata/telegraf/pull/3530): Support I (idle) process state on procfs+Linux.
 
 ### Bugfixes
 
@@ -53,8 +97,36 @@
 - [#3258](https://github.com/influxdata/telegraf/issues/3258): Unlock Statsd when stopping to prevent deadlock.
 - [#3319](https://github.com/influxdata/telegraf/issues/3319): Fix cloudwatch output requires unneeded permissions.
 - [#3351](https://github.com/influxdata/telegraf/issues/3351): Fix prometheus passthrough for existing value types.
+- [#3430](https://github.com/influxdata/telegraf/issues/3430): Always ignore autofs filesystems in disk input.
+- [#3326](https://github.com/influxdata/telegraf/issues/3326): Fail metrics parsing on unescaped quotes.
+- [#3473](https://github.com/influxdata/telegraf/pull/3473): Whitelist allowed char classes for graphite output.
+- [#3488](https://github.com/influxdata/telegraf/pull/3488): Use hexadecimal ids and lowercase names in zipkin input.
+- [#3263](https://github.com/influxdata/telegraf/issues/3263): Fix snmp-tools output parsing with Windows EOLs.
+- [#3447](https://github.com/influxdata/telegraf/issues/3447): Add shadow-utils dependency to rpm package.
+- [#3448](https://github.com/influxdata/telegraf/issues/3448): Use deb-systemd-invoke to restart service.
+- [#3553](https://github.com/influxdata/telegraf/issues/3553): Fix kafka_consumer outside range of offsets error.
+- [#3568](https://github.com/influxdata/telegraf/issues/3568): Fix separation of multiple prometheus_client outputs.
+- [#3577](https://github.com/influxdata/telegraf/issues/3577): Don't add system input uptime_format as a counter.
 
-## v1.4.3 [unreleased]
+## v1.4.5 [2017-12-01]
+
+### Bugfixes
+
+- [#3500](https://github.com/influxdata/telegraf/issues/3500): Fix global variable collection when using interval_slow option in mysql input.
+- [#3486](https://github.com/influxdata/telegraf/issues/3486): Fix error getting net connections info in netstat input.
+- [#3529](https://github.com/influxdata/telegraf/issues/3529): Fix HOST_MOUNT_PREFIX in docker with disk input.
+
+## v1.4.4 [2017-11-08]
+
+### Bugfixes
+
+- [#3401](https://github.com/influxdata/telegraf/pull/3401): Use schema specified in mqtt_consumer input.
+- [#3419](https://github.com/influxdata/telegraf/issues/3419): Redact datadog API key in log output.
+- [#3311](https://github.com/influxdata/telegraf/issues/3311): Fix error getting pids in netstat input.
+- [#3339](https://github.com/influxdata/telegraf/issues/3339): Support HOST_VAR envvar to locate /var in system input.
+- [#3383](https://github.com/influxdata/telegraf/issues/3383): Use current time if docker container read time is zero value.
+
+## v1.4.3 [2017-10-25]
 
 ### Bugfixes
 
