@@ -48,14 +48,8 @@ func (l *Libvirt) Gather(acc telegraf.Accumulator) error {
 			return err
 		}
 
-		name, err := domain.GetName()
-		if err != nil {
-			return err
-		}
-
 		tags := map[string]string{
 			"uuid": uuid,
-			"name": name,
 		}
 
 		fields := map[string]interface{}{
@@ -111,6 +105,7 @@ func GatherInterfaces(c lv.Connect, d lv.Domain, acc telegraf.Accumulator, tags 
 		}
 		acc.AddFields("vm.data", fields, tags)
 	}
+	delete(tags, "interface")
 	return nil
 }
 
@@ -135,6 +130,7 @@ func GatherDisks(c lv.Connect, d lv.Domain, acc telegraf.Accumulator, tags map[s
 		}
 		acc.AddFields("vm.data", fields, tags)
 	}
+	delete(tags, "disk")
 	return nil
 }
 
