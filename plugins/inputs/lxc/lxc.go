@@ -144,13 +144,19 @@ func diff(s1 []string, s2 []string) []string {
 
 func (l *Lxc) GetContainers() ([]string, error) {
 	//get available lxc containers
-	cmd := exec.Command("lxc", "list", "-c", "n", "--format", "csv")
+	cmd := exec.Command("lxc", "list", "-c", "ns", "--format", "csv")
 	out, err := cmd.Output()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Calling \"%s\" caused an error: %s.", strings.Join(cmd.Args, " "), err.Error())
 	}
 	//Trim last newline and split by newline
-	availContainers := strings.Split(strings.TrimSuffix(string(out), "\n"), "\n")
+	var availContainers []string
+	for _, v := range strings.Split(strings.TrimSuffix(string(out), "\n"), "\n") {
+		tmp := strings.Split(v, ",")
+		if tmp[1] == "RUNNING" {
+			availContainers = append(availContainers, tmp[0])
+		}
+	}
 
 	if len(l.Container_whitelist) > 0 {
 		if len(l.Container_blacklist) > 0 {
@@ -189,8 +195,8 @@ func (l *Lxc) FilterMetrics(ContainerMap map[string]interface{}) (map[string]int
 
 func (l *Lxc) Gather(acc telegraf.Accumulator) error {
 	var ContainerMap map[string]interface{}
-	tag_name = "name"
-	tag_cat = "category"
+	tag_name := "name"
+	tag_cat := "category"
 	containers, err := l.GetContainers()
 	if err != nil {
 		return err
