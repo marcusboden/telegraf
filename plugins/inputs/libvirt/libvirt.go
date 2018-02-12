@@ -56,14 +56,37 @@ func (l *Libvirt) Gather(acc telegraf.Accumulator) error {
 			"cpu_time":    domainInfo.CpuTime,
 			"nr_virt_cpu": domainInfo.NrVirtCpu,
 		}
-		stats, err := domain.MemoryStats(10, 0)
+		stats, err := domain.MemoryStats(20, 0)
 		if err != nil {
 			return err
 		}
+
+		/* enum virDomainMemoryStatTags {
+			VIR_DOMAIN_MEMORY_STAT_LAST           = VIR_DOMAIN_MEMORY_STAT_NR
+			VIR_DOMAIN_MEMORY_STAT_SWAP_IN        = 0  //The total amount of data read from swap space (in kB).
+			VIR_DOMAIN_MEMORY_STAT_SWAP_OUT       = 1  //The total amount of memory written out to swap space (in kB).
+			VIR_DOMAIN_MEMORY_STAT_MAJOR_FAULT    = 2  //Page faults occur when a process makes a valid access to virtual memory that is not available. When servicing the page fault, if disk IO is required, it is considered a major fault. If not, it is a minor fault. These are expressed as the number of faults that have occurred.
+			VIR_DOMAIN_MEMORY_STAT_MINOR_FAULT    = 3
+			VIR_DOMAIN_MEMORY_STAT_UNUSED         = 4  //The amount of memory left completely unused by the system. Memory that is available but used for reclaimable caches should NOT be reported as free. This value is expressed in kB.
+			VIR_DOMAIN_MEMORY_STAT_AVAILABLE      = 5  //The total amount of usable memory as seen by the domain. This value may be less than the amount of memory assigned to the domain if a balloon driver is in use or if the guest OS does not initialize all assigned pages. This value is expressed in kB.
+			VIR_DOMAIN_MEMORY_STAT_ACTUAL_BALLOON = 6  //Current balloon value (in KB).
+			VIR_DOMAIN_MEMORY_STAT_RSS            = 7  //Resident Set Size of the process running the domain. This value is in kB
+			VIR_DOMAIN_MEMORY_STAT_USABLE         = 8  //How much the balloon can be inflated without pushing the guest system to swap, corresponds to 'Available' in /proc/meminfo
+			VIR_DOMAIN_MEMORY_STAT_LAST_UPDATE    = 9  //Timestamp of the last update of statistics, in seconds.
+			VIR_DOMAIN_MEMORY_STAT_NR             = 10 //The number of statistics supported by this version of the interface. To add new statistics, add them to the enum and increase this value.
+		} */
 		m := map[int32]string{
-			int32(lv.DOMAIN_MEMORY_STAT_AVAILABLE): "mem_max",
-			int32(lv.DOMAIN_MEMORY_STAT_USABLE):    "mem_free",
+			int32(lv.DOMAIN_MEMORY_STAT_SWAP_IN):        "mem_swap_in",
+			int32(lv.DOMAIN_MEMORY_STAT_SWAP_OUT):       "mem_swap_out",
+			int32(lv.DOMAIN_MEMORY_STAT_MAJOR_FAULT):    "mem_major_fault",
+			int32(lv.DOMAIN_MEMORY_STAT_MINOR_FAULT):    "mem_minor_fault",
+			int32(lv.DOMAIN_MEMORY_STAT_UNUSED):         "mem_unused",
+			int32(lv.DOMAIN_MEMORY_STAT_AVAILABLE):      "mem_available",
+			int32(lv.DOMAIN_MEMORY_STAT_ACTUAL_BALLOON): "mem_actual_balloon",
+			int32(lv.DOMAIN_MEMORY_STAT_RSS):            "mem_rss",
+			int32(lv.DOMAIN_MEMORY_STAT_USABLE):         "mem_usable",
 		}
+
 		for _, stat := range stats {
 			if val, ok := m[stat.Tag]; ok {
 				fields[val] = stat.Val
